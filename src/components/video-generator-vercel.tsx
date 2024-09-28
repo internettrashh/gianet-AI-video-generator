@@ -113,7 +113,7 @@ const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[])
       if (statusIntervalRef.current) {
         clearInterval(statusIntervalRef.current);
       }
-      statusIntervalRef.current = setInterval(fetchStatus, 1000)
+      statusIntervalRef.current = setInterval(fetchStatus, 10000)
   
     } catch (error) {
       console.error("Error generating video:", error)
