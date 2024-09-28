@@ -12,7 +12,6 @@ export default function Component() {
   const [isLoading, setIsLoading] = useState(false)
   const [videoReady, setVideoReady] = useState(false)
   const [processLogs, setProcessLogs] = useState<string[]>([])
-  const [compilerStatus, setCompilerStatus] = useState<string[]>(Array(6).fill('pending'));
   const [agentStatus, setAgentStatus] = useState<{
     script: string;
     audio: string[];
