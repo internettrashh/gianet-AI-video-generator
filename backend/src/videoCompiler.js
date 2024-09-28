@@ -3,6 +3,7 @@ import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
+import { compilerStatus } from './index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,17 +62,20 @@ async function concatenateVideos(inputFiles, output) {
   });
 }
 
+//let compilerStatus = Array(6).fill('pending');
+
 async function compileVideo(scenePairs) {
   const tempVideos = [];
-
   for (let i = 0; i < scenePairs.length; i++) {
     const { image, audio } = scenePairs[i];
     const tempOutput = `temp_video_${i}.mp4`;
+    compilerStatus[i] = 'in_progress';
     await createVideoFromImageAndAudio(
       path.join(__dirname, '..', image),
       path.join(__dirname, '..', audio),
       tempOutput
     );
+    compilerStatus[i] = 'completed';
     tempVideos.push(tempOutput);
     console.log(`Processed scene ${i + 1}`);
   }
@@ -83,8 +87,14 @@ async function compileVideo(scenePairs) {
   for (const tempVideo of tempVideos) {
     await fs.unlink(tempVideo);
   }
+
+  compilerStatus[5] = 'completed'; // Final compilation step
 }
 
+// Add this function to get the compiler status
+function getCompilerStatus() {
+  return compilerStatus;
+}
 async function createFinalVideo() {
   // Change this line to save in the backend folder instead of backend/src
   const outputPath = path.join(__dirname, '..', 'output.mp4');
@@ -109,7 +119,7 @@ async function createFinalVideo() {
   }
 }
 
-export { createFinalVideo };
+export { createFinalVideo, getCompilerStatus, compilerStatus };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   createFinalVideo().catch(console.error);

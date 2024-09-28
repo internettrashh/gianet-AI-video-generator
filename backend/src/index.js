@@ -1,16 +1,17 @@
 import express from 'express';
 import cors from 'cors';
-import { generateVideoContent, getAgentStatus } from './agentManager.js';
+import { generateVideoContent, getAgentStatus,  SCENE_COUNT} from './agentManager.js';
 import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getCompilerStatus } from './videoCompiler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 // CORS configuration
 const corsOptions = {
@@ -19,6 +20,14 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+let compilerStatus = Array(6).fill('pending');
+  
+let agentStatus = {
+  script: 'idle',
+  audio: Array(5).fill('idle'),
+  image: Array(5).fill('idle')
+};
 
 // To parse JSON bodies
 app.use(express.json());
@@ -35,6 +44,23 @@ app.post('/generate', async (req, res) => {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
+  // if anything is in progress, return a 409 Conflict status
+if (agentStatus.script === 'in_progress' || agentStatus.audio.includes('in_progress') || agentStatus.image.includes('in_progress')) {
+    return res.status(409).json({ error: 'Video generation is in progress' });
+  } else if (compilerStatus.includes('pending') && compilerStatus.includes('completed') || compilerStatus.includes('in_progress')) {
+    return res.status(409).json({ error: 'Video generation is in progress' });
+  }
+
+  compilerStatus = Array(6).fill('pending');
+  
+  agentStatus = {
+    script: 'idle',
+    audio: Array(5).fill('idle'),
+    image: Array(5).fill('idle')
+  };
+  
+
+
   try {
     res.status(202).json({ message: 'Video generation started', status: getAgentStatus() });
 
@@ -46,7 +72,9 @@ app.post('/generate', async (req, res) => {
 });
 
 app.get('/status', (req, res) => {
-  res.json(getAgentStatus());
+  const status = getAgentStatus();
+  const compilerStatus = getCompilerStatus();
+  res.json({ agentStatus: status, compilerStatus });
 });
 
 // Existing /video endpoint (kept for backwards compatibility)
@@ -162,3 +190,5 @@ app.get('/output.mp4', (req, res) => serveVideo(req, res, false));
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+export {agentStatus, compilerStatus};

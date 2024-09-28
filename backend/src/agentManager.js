@@ -2,14 +2,14 @@ import { generateScript } from './scriptAgent.js';
 import { generateAudio } from './audioAgent.js';
 import { generateImage } from './imageAgent.js';
 import { createFinalVideo } from './videoCompiler.js';
-
+import { agentStatus } from './index.js';
 const SCENE_COUNT = 5;
 
-let agentStatus = {
-  script: 'idle',
-  audio: Array(SCENE_COUNT).fill('idle'),
-  image: Array(SCENE_COUNT).fill('idle')
-};
+// let agentStatus = {
+//   script: 'idle',
+//   audio: Array(SCENE_COUNT).fill('idle'),
+//   image: Array(SCENE_COUNT).fill('idle')
+// };
 
 function getAgentStatus() {
   return JSON.parse(JSON.stringify(agentStatus));
@@ -68,7 +68,7 @@ async function generateVideoContent(prompt) {
   return results;
 }
 
-export { generateVideoContent, getAgentStatus };
+export { generateVideoContent, getAgentStatus, agentStatus, SCENE_COUNT };
 
 // For testing purposes
 if (import.meta.url === `file://${process.argv[1]}`) {

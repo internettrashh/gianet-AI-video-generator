@@ -12,18 +12,25 @@ export default function Component() {
   const [isLoading, setIsLoading] = useState(false)
   const [videoReady, setVideoReady] = useState(false)
   const [processLogs, setProcessLogs] = useState<string[]>([])
-  const [agentStatus, setAgentStatus] = useState<{ script: string, audio: string[], image: string[] }>({
+  const [compilerStatus, setCompilerStatus] = useState<string[]>(Array(6).fill('pending'));
+  const [agentStatus, setAgentStatus] = useState<{
+    script: string;
+    audio: string[];
+    image: string[];
+  }>({
     script: "idle",
     audio: ["idle", "idle", "idle", "idle", "idle"],
     image: ["idle", "idle", "idle", "idle", "idle"]
-  })
+  });
   const logContainerRef = useRef<HTMLDivElement>(null)
   const statusIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const areAllProcessesCompleted = (status: typeof agentStatus) => {
-    return status.script === "completed" &&
-      status.audio.every(s => s === "completed") &&
-      status.image.every(s => s === "completed");
-  };
+// Update the areAllProcessesCompleted function
+const areAllProcessesCompleted = (status: typeof agentStatus, compilerStatus: string[]) => {
+  return status.script === "completed" &&
+    status.audio.every(s => s === "completed") &&
+    status.image.every(s => s === "completed") &&
+    compilerStatus.every(s => s === "completed");
+};
 
   const suggestedPrompts = [
     "Serene lake at sunset",
@@ -51,35 +58,38 @@ export default function Component() {
       const response = await fetch('https://gianet-ai-video-generator.onrender.com/status')
       const data = await response.json()
       setAgentStatus(data)
-      updateProcessLogs(data)
+      updateProcessLogs(data.agentStatus, data.compilerStatus)
   
-      // Check if all processes are completed
-      if (areAllProcessesCompleted(data)) {
-        if (statusIntervalRef.current) {
-          clearInterval(statusIntervalRef.current);
-          statusIntervalRef.current = null;
-        }
-        setVideoReady(true);
-        setIsLoading(false);
+    // Check if all processes are completed
+    if (areAllProcessesCompleted(data.agentStatus, data.compilerStatus)) {
+      if (statusIntervalRef.current) {
+        clearInterval(statusIntervalRef.current);
+        statusIntervalRef.current = null;
       }
-    } catch (error) {
-      console.error("Error fetching status:", error)
+      setVideoReady(true);
+      setIsLoading(false);
     }
-  };
-
-  const updateProcessLogs = (status: typeof agentStatus) => {
-    const newLogs: string[] = []
-    if (status.script !== "idle") newLogs.push(`Script Agent: ${status.script}`)
-    status.audio.forEach((audioStatus, index) => {
-      if (audioStatus !== "idle") newLogs.push(`Audio Agent ${index + 1}: ${audioStatus}`)
-    })
-    status.image.forEach((imageStatus, index) => {
-      if (imageStatus !== "idle") newLogs.push(`Image Agent ${index + 1}: ${imageStatus}`)
-    })
-    if (newLogs.length > 0) {
-      setProcessLogs(prev => [...prev, ...newLogs])
-    }
+  } catch (error) {
+    console.error("Error fetching status:", error);
   }
+};
+
+const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[]) => {
+  const newLogs: string[] = [];
+  if (status.script !== "idle") newLogs.push(`Script Agent: ${status.script}`);
+  status.audio.forEach((audioStatus, index) => {
+    if (audioStatus !== "idle") newLogs.push(`Audio Agent ${index + 1}: ${audioStatus}`);
+  });
+  status.image.forEach((imageStatus, index) => {
+    if (imageStatus !== "idle") newLogs.push(`Image Agent ${index + 1}: ${imageStatus}`);
+  });
+  compilerStatus.forEach((status, index) => {
+    if (status !== "pending") newLogs.push(`Video Compilation Scene ${index + 1}: ${status}`);
+  });
+  if (newLogs.length > 0) {
+    setProcessLogs(prev => [...prev, ...newLogs]);
+  }
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
