@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 
 // CORS configuration
 const corsOptions = {
-  origin: ['https://gianet-ai-video-generator.vercel.app', 'http://localhost:3000'],
+  origin: ['https://gianet-ai-video-generator.vercel.app', 'http://localhost'],
   optionsSuccessStatus: 200
 };
 
