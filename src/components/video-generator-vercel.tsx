@@ -7,15 +7,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-
-// Import the video file
-
 export default function Component() {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [videoReady, setVideoReady] = useState(false)
   const [processLogs, setProcessLogs] = useState<string[]>([])
+  const [agentStatus, setAgentStatus] = useState<{ script: string, audio: string[], image: string[] }>({
+    script: "idle",
+    audio: ["idle", "idle", "idle", "idle", "idle"],
+    image: ["idle", "idle", "idle", "idle", "idle"]
+  })
   const logContainerRef = useRef<HTMLDivElement>(null)
+  const statusIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const suggestedPrompts = [
     "Serene lake at sunset",
@@ -24,33 +27,42 @@ export default function Component() {
     "Colorful coral reef"
   ]
 
-  const agentProcesses = [
-    "Spawning Frame Agent 1...",
-    "Spawning Frame Agent 2...",
-    "Spawning Frame Agent 3...",
-    "Spawning Frame Agent 4...",
-    "Spawning Frame Agent 5...",
-    "Spawning Audio Agent 1...",
-    "Spawning Audio Agent 2...",
-    "Spawning Audio Agent 3...",
-    "Spawning Audio Agent 4...",
-    "Spawning Audio Agent 5...",
-    "Combining video frames...",
-    "Synchronizing audio...",
-    "Adding captions...",
-    "Finalizing video..."
-  ]
-
   useEffect(() => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight
     }
   }, [processLogs])
 
-  const streamProcess = async () => {
-    for (const process of agentProcesses) {
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 5000))
-      setProcessLogs(prev => [...prev, process])
+  useEffect(() => {
+    return () => {
+      if (statusIntervalRef.current) {
+        clearInterval(statusIntervalRef.current)
+      }
+    }
+  }, [])
+
+  const fetchStatus = async () => {
+    try {
+      const response = await fetch('https://gianet-ai-video-generator.onrender.com/status')
+      const data = await response.json()
+      setAgentStatus(data)
+      updateProcessLogs(data)
+    } catch (error) {
+      console.error("Error fetching status:", error)
+    }
+  }
+
+  const updateProcessLogs = (status: typeof agentStatus) => {
+    const newLogs: string[] = []
+    if (status.script !== "idle") newLogs.push(`Script Agent: ${status.script}`)
+    status.audio.forEach((audioStatus, index) => {
+      if (audioStatus !== "idle") newLogs.push(`Audio Agent ${index + 1}: ${audioStatus}`)
+    })
+    status.image.forEach((imageStatus, index) => {
+      if (imageStatus !== "idle") newLogs.push(`Image Agent ${index + 1}: ${imageStatus}`)
+    })
+    if (newLogs.length > 0) {
+      setProcessLogs(prev => [...prev, ...newLogs])
     }
   }
 
@@ -59,30 +71,57 @@ export default function Component() {
     setIsLoading(true)
     setVideoReady(false)
     setProcessLogs([])
-    
+
     try {
-      await streamProcess()
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Generate endpoint
+      const generateResponse = await fetch('https://gianet-ai-video-generator.onrender.com/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      })
+
+      if (!generateResponse.ok) {
+        throw new Error('Failed to start video generation')
+      }
+
+      // Start polling for status
+      statusIntervalRef.current = setInterval(fetchStatus, 1000)
+
+      // Simulate waiting for completion (replace with actual completion check)
+      await new Promise(resolve => setTimeout(resolve, 30000))
+
+      clearInterval(statusIntervalRef.current)
       setVideoReady(true)
     } catch (error) {
       console.error("Error generating video:", error)
     } finally {
       setIsLoading(false)
+      if (statusIntervalRef.current) {
+        clearInterval(statusIntervalRef.current)
+      }
     }
   }
 
-  const handleDownload = () => {
-    // Create an anchor element and trigger download
-    const link = document.createElement('a');
-    const videoFile = 'src/assets/Signal video Aug 1.mp4';
-
-    link.href = videoFile;
-    link.download = 'Signal video Aug 1.mp4'; // Set the download file name
-    document.body.appendChild(link);
-    link.click(); // Trigger the download
-    document.body.removeChild(link); // Clean up the element
-  };
-
+  const handleDownload = async () => {
+    try {
+      const response = await fetch('https://gianet-ai-video-generator.onrender.com/video')
+      if (!response.ok) throw new Error('Failed to download video')
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = url
+      a.download = 'generated-video.mp4'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Error downloading video:", error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4">
