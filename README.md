@@ -48,10 +48,11 @@ When a user submits a prompt:
 ## Key Components
 
 - `src/index.js`: The main entry point and Express server setup.
-- `src/scriptGenerator.js`: Generates the initial script from the user's prompt.
-- `src/audioGenerator.js`: Handles audio content creation.
-- `src/imageGenerator.js`: Manages image generation.
-- `src/videoGenerator.js`: Coordinates the agents and compiles the final video.
+- `src/scriptAgent.js`: Generates the initial script from the user's prompt.
+- `src/audioAgent.js`: Handles audio content creation.
+- `src/imageAgent.js`: Manages image generation.
+- `src/videoCompiler.js`: ffmpeg based compiler helper for the final video.
+- `src/agentManager.js`: Coordinates the agents and compiles the final video.
 
 ## Installation
 
@@ -66,16 +67,17 @@ When a user submits a prompt:
    npm install
    ```
 
-3. Create a `.env` file in the root directory and add your GaiaNet API endpoint:
+3. Create a `.env` file in the root directory and add your api keys for Audio Gen(OpenAI) and Image Gen(Segmind) :
    ```
    OPENAI_API_KEY=your_openai_api_key_here
+   SEGMIND_API_KEY0=your_segmind_api_key_here
    ```
 
 ## Running the Project
 
 1. Start the server:
    ```
-   npm start
+   npm run dev
    ```
 
 2. The server will start on the port specified in your environment (default is 3000).
@@ -83,8 +85,8 @@ When a user submits a prompt:
 ## API Endpoints
 
 - `POST /api/generate`: Start video generation with a prompt
-- `GET /api/status/:jobId`: Get the status of a generation job
-- `GET /api/audio/:jobId`: Retrieve the generated audio for a job
+- `GET /api/status/`: Get the status of a generation agents
+- `GET /api/video`: Retrieve the generated video 
 
 ## Future Developments
 
