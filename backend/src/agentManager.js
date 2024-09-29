@@ -5,7 +5,7 @@ import { createFinalVideo } from './videoCompiler.js';
 
 const SCENE_COUNT = 5;
 
-const agentStatus = {
+let agentStatus = {
   script: 'idle',
   audio: Array(SCENE_COUNT).fill('idle'),
   image: Array(SCENE_COUNT).fill('idle')
@@ -37,6 +37,11 @@ async function runAgentPair(sceneContent, sceneNumber) {
 }
 
 async function generateVideoContent(prompt) {
+  let agentStatus = {
+    script: 'idle',
+    audio: Array(SCENE_COUNT).fill('idle'),
+    image: Array(SCENE_COUNT).fill('idle')
+  };
   console.log("Generating video content...");
 
   agentStatus.script = 'in_progress';

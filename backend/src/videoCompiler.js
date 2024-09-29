@@ -87,7 +87,7 @@ async function compileVideo(scenePairs) {
 
 async function createFinalVideo() {
   // Change this line to save in the backend folder instead of backend/src
-  const outputPath = path.join(__dirname, '..', '..', 'output.mp4');
+  const outputPath = path.join(__dirname, '..', 'output.mp4');
   const scenePairs = [
     { image: 'scene-1.jpg', audio: 'scene-1-audio.mp3' },
     { image: 'scene-2.jpg', audio: 'scene-2-audio.mp3' },
