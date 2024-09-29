@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { generateVideoContent, getAgentStatus } from './agentManager.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -6,8 +7,21 @@ import path from 'path';
 const app = express();
 const port = process.env.PORT || 3000;
 
+// CORS configuration
+const corsOptions = {
+  origin: ['https://gianet-ai-video-generator.vercel.app', 'http://localhost:3000'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
 // To parse JSON bodies
 app.use(express.json());
+
+// Root route
+app.get('/', (req, res) => {
+  res.send('Hello World');
+});
 
 app.post('/generate', async (req, res) => {
   const { prompt } = req.body;
@@ -29,7 +43,6 @@ app.post('/generate', async (req, res) => {
 app.get('/status', (req, res) => {
   res.json(getAgentStatus());
 });
-
 
 app.get('/video', async (req, res) => {
   const videoPath = path.join(process.cwd(), 'output.mp4');
