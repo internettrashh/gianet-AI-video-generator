@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { generateVideoContent, getAgentStatus } from './agentManager.js';
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 
 const app = express();
@@ -44,20 +44,86 @@ app.get('/status', (req, res) => {
   res.json(getAgentStatus());
 });
 
-app.get('/video', async (req, res) => {
+// Existing /video endpoint (kept for backwards compatibility)
+app.get('/video', (req, res) => {
   const videoPath = path.join(process.cwd(), 'output.mp4');
 
-  try {
-    await fs.access(videoPath);
-    res.sendFile(videoPath);
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      res.status(404).json({ error: 'Video not found. Generation might not be completed.' });
-    } else {
-      console.error('Error accessing video file:', error);
-      res.status(500).json({ error: 'Internal server error' });
+  // Check if the file exists
+  fs.access(videoPath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error('Error accessing video file:', err);
+      return res.status(404).json({ error: 'Video not found. Generation might not be completed.' });
     }
-  }
+
+    // Get the file stats
+    const stat = fs.statSync(videoPath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (range) {
+      // Handle range requests for video streaming
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = (end - start) + 1;
+      const file = fs.createReadStream(videoPath, { start, end });
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'video/mp4',
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      // Serve the whole file
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4',
+        'Content-Disposition': 'attachment; filename="generated_video.mp4"'
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(videoPath).pipe(res);
+    }
+  });
+});
+
+// New route to serve the video file directly
+app.get('/output.mp4', (req, res) => {
+  const videoPath = path.join(process.cwd(), 'output.mp4');
+
+  fs.access(videoPath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error('Error accessing video file:', err);
+      return res.status(404).send('Video not found. Generation might not be completed.');
+    }
+
+    const stat = fs.statSync(videoPath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = (end - start) + 1;
+      const file = fs.createReadStream(videoPath, { start, end });
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'video/mp4',
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      res.writeHead(200, {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4',
+      });
+      fs.createReadStream(videoPath).pipe(res);
+    }
+  });
 });
 
 app.listen(port, () => {
