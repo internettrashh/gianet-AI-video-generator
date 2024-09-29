@@ -86,6 +86,8 @@ async function compileVideo(scenePairs) {
 }
 
 async function createFinalVideo() {
+  // Change this line to save in the backend folder instead of backend/src
+  const outputPath = path.join(__dirname, '..', '..', 'output.mp4');
   const scenePairs = [
     { image: 'scene-1.jpg', audio: 'scene-1-audio.mp3' },
     { image: 'scene-2.jpg', audio: 'scene-2-audio.mp3' },
@@ -94,13 +96,21 @@ async function createFinalVideo() {
     { image: 'scene-5.jpg', audio: 'scene-5-audio.mp3' },
   ];
 
-  await compileVideo(scenePairs);
+  try {
+    await compileVideo(scenePairs);
+    console.log('Video compilation complete!');
+    console.log('Output video path:', outputPath);
+    
+    // Verify that the file exists after compilation
+    await fs.access(outputPath);
+  } catch (error) {
+    console.error('Error during video compilation:', error);
+    throw error;
+  }
 }
 
 export { createFinalVideo };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-
   createFinalVideo().catch(console.error);
-
 }
