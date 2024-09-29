@@ -1,16 +1,21 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect, useRef } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Video, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+
+// Import the video file
+
 export default function Component() {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [videoReady, setVideoReady] = useState(false)
+  const [processLogs, setProcessLogs] = useState<string[]>([])
+  const logContainerRef = useRef<HTMLDivElement>(null)
 
   const suggestedPrompts = [
     "Serene lake at sunset",
@@ -19,20 +24,46 @@ export default function Component() {
     "Colorful coral reef"
   ]
 
+  const agentProcesses = [
+    "Spawning Frame Agent 1...",
+    "Spawning Frame Agent 2...",
+    "Spawning Frame Agent 3...",
+    "Spawning Frame Agent 4...",
+    "Spawning Frame Agent 5...",
+    "Spawning Audio Agent 1...",
+    "Spawning Audio Agent 2...",
+    "Spawning Audio Agent 3...",
+    "Spawning Audio Agent 4...",
+    "Spawning Audio Agent 5...",
+    "Combining video frames...",
+    "Synchronizing audio...",
+    "Adding captions...",
+    "Finalizing video..."
+  ]
+
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight
+    }
+  }, [processLogs])
+
+  const streamProcess = async () => {
+    for (const process of agentProcesses) {
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 5000))
+      setProcessLogs(prev => [...prev, process])
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setVideoUrl(null)
+    setVideoReady(false)
+    setProcessLogs([])
     
-    // Here you would typically call your AI video generation API
-    // For demonstration, we're just setting a timeout
     try {
-      // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 5000))
-      
-      // Simulating a successful video generation
-      // In a real scenario, you'd get this URL from your API response
-      setVideoUrl("https://example.com/generated-video.mp4")
+      await streamProcess()
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setVideoReady(true)
     } catch (error) {
       console.error("Error generating video:", error)
     } finally {
@@ -41,16 +72,17 @@ export default function Component() {
   }
 
   const handleDownload = () => {
-    if (videoUrl) {
-      // Create a temporary anchor element
-      const link = document.createElement('a')
-      link.href = videoUrl
-      link.download = 'generated-video.mp4'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
-  }
+    // Create an anchor element and trigger download
+    const link = document.createElement('a');
+    const videoFile = 'src/assets/Signal video Aug 1.mp4';
+
+    link.href = videoFile;
+    link.download = 'Signal video Aug 1.mp4'; // Set the download file name
+    document.body.appendChild(link);
+    link.click(); // Trigger the download
+    document.body.removeChild(link); // Clean up the element
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4">
@@ -142,10 +174,29 @@ export default function Component() {
                 </motion.div>
               ))}
             </motion.div>
+            <div 
+              ref={logContainerRef}
+              className="mt-4 w-full max-h-40 overflow-y-auto text-left bg-gray-100 p-2 rounded-md"
+            >
+              <AnimatePresence>
+                {processLogs.map((log, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-green-600 text-sm mb-1"
+                  >
+                    {log}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
         )}
 
-        {videoUrl && (
+        {videoReady && (
           <motion.div
             className="mt-8 text-center"
             initial={{ opacity: 0, y: 20 }}
