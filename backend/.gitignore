@@ -1,0 +1,9 @@
+node_modules
+*.env
+codebase.md 
+package-lock.json
+*.mp3
+*.mp4
+*.jpg
+*.jpeg
+*.png
