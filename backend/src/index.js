@@ -123,6 +123,38 @@ app.get('/files', async (req, res) => {
   }
 });
 
+app.get('/file/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(__dirname, '..', filename);
+
+  try {
+    // Check if file exists
+    await fs.access(filePath);
+    
+    // Read file contents
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    
+    // Determine content type
+    let contentType = 'text/plain';
+    if (filename.endsWith('.json')) {
+      contentType = 'application/json';
+    } else if (filename.endsWith('.js')) {
+      contentType = 'application/javascript';
+    } else if (filename.endsWith('.html')) {
+      contentType = 'text/html';
+    }
+    
+    res.setHeader('Content-Type', contentType);
+    res.send(fileContent);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      res.status(404).send('File not found');
+    } else {
+      console.error('Error reading file:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  }
+});
 
 app.get('/video', (req, res) => serveVideo(req, res, true));
 app.get('/output.mp4', (req, res) => serveVideo(req, res, false));
