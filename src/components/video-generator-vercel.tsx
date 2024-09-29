@@ -19,6 +19,11 @@ export default function Component() {
   })
   const logContainerRef = useRef<HTMLDivElement>(null)
   const statusIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const areAllProcessesCompleted = (status: typeof agentStatus) => {
+    return status.script === "completed" &&
+      status.audio.every(s => s === "completed") &&
+      status.image.every(s => s === "completed");
+  };
 
   const suggestedPrompts = [
     "Serene lake at sunset",
@@ -47,10 +52,20 @@ export default function Component() {
       const data = await response.json()
       setAgentStatus(data)
       updateProcessLogs(data)
+  
+      // Check if all processes are completed
+      if (areAllProcessesCompleted(data)) {
+        if (statusIntervalRef.current) {
+          clearInterval(statusIntervalRef.current);
+          statusIntervalRef.current = null;
+        }
+        setVideoReady(true);
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error("Error fetching status:", error)
     }
-  }
+  };
 
   const updateProcessLogs = (status: typeof agentStatus) => {
     const newLogs: string[] = []
@@ -71,9 +86,8 @@ export default function Component() {
     setIsLoading(true)
     setVideoReady(false)
     setProcessLogs([])
-
+  
     try {
-      // Generate endpoint
       const generateResponse = await fetch('https://gianet-ai-video-generator.onrender.com/generate', {
         method: 'POST',
         headers: {
@@ -81,29 +95,25 @@ export default function Component() {
         },
         body: JSON.stringify({ prompt }),
       })
-
+  
       if (!generateResponse.ok) {
         throw new Error('Failed to start video generation')
       }
-
+  
       // Start polling for status
+      if (statusIntervalRef.current) {
+        clearInterval(statusIntervalRef.current);
+      }
       statusIntervalRef.current = setInterval(fetchStatus, 1000)
-
-      // Simulate waiting for completion (replace with actual completion check)
-      await new Promise(resolve => setTimeout(resolve, 30000))
-
-      clearInterval(statusIntervalRef.current)
-      setVideoReady(true)
+  
     } catch (error) {
       console.error("Error generating video:", error)
-    } finally {
       setIsLoading(false)
       if (statusIntervalRef.current) {
         clearInterval(statusIntervalRef.current)
       }
     }
-  }
-
+  };
   const handleDownload = async () => {
     try {
       const response = await fetch('https://gianet-ai-video-generator.onrender.com/video')
