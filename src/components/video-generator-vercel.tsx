@@ -150,6 +150,15 @@ const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[])
             AI Video Generator <span className="ml-2">🎥✨</span>
           </h2>
           <p className="mt-2 text-sm text-gray-600">Enter your prompt and watch the magic happen! 🪄</p>
+          {/* Add a tag in bold saying video generation can take up to 5-10 minutes  */}
+          <p> you found an easter egg! </p>
+          <p className="mt-2 text-sm text-gray-600 font-bold">Video generation can take up to 5-10 minutes</p>
+          <p> anotha one !</p>
+          <p className="mt-2 text-sm text-gray-600 font-bold">!If the generate button doesn't load anything!</p>
+          <p className="mt-2 text-sm text-gray-600 font-bold">!It means you are in a queue please wait and!</p>
+
+          <p className="mt-2 text-sm text-gray-600 font-bold">!Try again later!</p>
+        
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
