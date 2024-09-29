@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Video, Download } from "lucide-react"
+import { Video, Download, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function Component() {
   const [prompt, setPrompt] = useState("")
@@ -23,13 +24,13 @@ export default function Component() {
   });
   const logContainerRef = useRef<HTMLDivElement>(null)
   const statusIntervalRef = useRef<NodeJS.Timeout | null>(null)
-// Update the areAllProcessesCompleted function
-const areAllProcessesCompleted = (status: typeof agentStatus, compilerStatus: string[]) => {
-  return status.script === "completed" &&
-    status.audio.every(s => s === "completed") &&
-    status.image.every(s => s === "completed") &&
-    compilerStatus.every(s => s === "completed");
-};
+
+  const areAllProcessesCompleted = (status: typeof agentStatus, compilerStatus: string[]) => {
+    return status.script === "completed" &&
+      status.audio.every(s => s === "completed") &&
+      status.image.every(s => s === "completed") &&
+      compilerStatus.every(s => s === "completed");
+  };
 
   const suggestedPrompts = [
     "Serene lake at sunset",
@@ -56,39 +57,38 @@ const areAllProcessesCompleted = (status: typeof agentStatus, compilerStatus: st
     try {
       const response = await fetch('https://gianet-ai-video-generator.onrender.com/status')
       const data = await response.json()
-      setAgentStatus(data)
+      setAgentStatus(data.agentStatus)
       updateProcessLogs(data.agentStatus, data.compilerStatus)
   
-    // Check if all processes are completed
-    if (areAllProcessesCompleted(data.agentStatus, data.compilerStatus)) {
-      if (statusIntervalRef.current) {
-        clearInterval(statusIntervalRef.current);
-        statusIntervalRef.current = null;
+      if (areAllProcessesCompleted(data.agentStatus, data.compilerStatus)) {
+        if (statusIntervalRef.current) {
+          clearInterval(statusIntervalRef.current);
+          statusIntervalRef.current = null;
+        }
+        setVideoReady(true);
+        setIsLoading(false);
       }
-      setVideoReady(true);
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching status:", error);
     }
-  } catch (error) {
-    console.error("Error fetching status:", error);
-  }
-};
+  };
 
-const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[]) => {
-  const newLogs: string[] = [];
-  if (status.script !== "idle") newLogs.push(`Script Agent: ${status.script}`);
-  status.audio.forEach((audioStatus, index) => {
-    if (audioStatus !== "idle") newLogs.push(`Audio Agent ${index + 1}: ${audioStatus}`);
-  });
-  status.image.forEach((imageStatus, index) => {
-    if (imageStatus !== "idle") newLogs.push(`Image Agent ${index + 1}: ${imageStatus}`);
-  });
-  compilerStatus.forEach((status, index) => {
-    if (status !== "pending") newLogs.push(`Video Compilation Scene ${index + 1}: ${status}`);
-  });
-  if (newLogs.length > 0) {
-    setProcessLogs(prev => [...prev, ...newLogs]);
-  }
-};
+  const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[]) => {
+    const newLogs: string[] = [];
+    if (status.script !== "idle") newLogs.push(`Script Agent: ${status.script}`);
+    status.audio.forEach((audioStatus, index) => {
+      if (audioStatus !== "idle") newLogs.push(`Audio Agent ${index + 1}: ${audioStatus}`);
+    });
+    status.image.forEach((imageStatus, index) => {
+      if (imageStatus !== "idle") newLogs.push(`Image Agent ${index + 1}: ${imageStatus}`);
+    });
+    compilerStatus.forEach((status, index) => {
+      if (status !== "pending") newLogs.push(`Video Compilation Scene ${index + 1}: ${status}`);
+    });
+    if (newLogs.length > 0) {
+      setProcessLogs(prev => [...prev, ...newLogs]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -109,7 +109,6 @@ const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[])
         throw new Error('Failed to start video generation')
       }
   
-      // Start polling for status
       if (statusIntervalRef.current) {
         clearInterval(statusIntervalRef.current);
       }
@@ -123,6 +122,7 @@ const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[])
       }
     }
   };
+
   const handleDownload = async () => {
     try {
       const response = await fetch('https://gianet-ai-video-generator.onrender.com/video')
@@ -150,16 +150,19 @@ const updateProcessLogs = (status: typeof agentStatus, compilerStatus: string[])
             AI Video Generator <span className="ml-2">🎥✨</span>
           </h2>
           <p className="mt-2 text-sm text-gray-600">Enter your prompt and watch the magic happen! 🪄</p>
-          {/* Add a tag in bold saying video generation can take up to 5-10 minutes  */}
-          <p> you found an easter egg! </p>
-          <p className="mt-2 text-sm text-gray-600 font-bold">Video generation can take up to 5-10 minutes</p>
-          <p> anotha one !</p>
-          <p className="mt-2 text-sm text-gray-600 font-bold">!If the generate button doesn't load anything!</p>
-          <p className="mt-2 text-sm text-gray-600 font-bold">!It means you are in a queue please wait and!</p>
-
-          <p className="mt-2 text-sm text-gray-600 font-bold">!Try again later!</p>
-        
         </div>
+
+        <Alert variant="default">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Important Information</AlertTitle>
+          <AlertDescription>
+            <p>video generation takes time and you may be placed in a queue.</p>
+            <p>Video generation can take up to 5-10 minutes.</p>
+            <p className="font-bold">Please do not refresh or leave the page during the process.</p>
+            <p>If the generate button doesn't respond, you may be in a queue. Please wait and try again later.</p>
+          </AlertDescription>
+        </Alert>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <Label htmlFor="prompt" className="sr-only">
