@@ -1,86 +1,101 @@
-# React + Vite + TypeScript Template (react-vite-ui)
+# Multi-Agent Content Generation System: Turning Ideas into Videos
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Dan5py/react-vite-ui/blob/main/LICENSE)
+## Introduction
 
-A React + Vite template powered by shadcn/ui.
+Welcome to the Multi-Agent Content Generation System, an innovative project that leverages GaiaNet's decentralized AI inference network to transform simple prompts into fully realized videos. This system, which we call the "Brat model," uses a sophisticated network of AI agents to generate content across multiple modalities.
 
-## 🎉 Features
+## About GaiaNet
 
-- **React** - A JavaScript library for building user interfaces.
-- **Vite** - A fast, opinionated frontend build tool.
-- **TypeScript** - A typed superset of JavaScript that compiles to plain JavaScript.
-- **Tailwind CSS** - A utility-first CSS framework.
-- **Tailwind Prettier Plugin** - A Prettier plugin for formatting Tailwind CSS classes.
-- **ESLint** - A pluggable linting utility for JavaScript and TypeScript.
-- **PostCSS** - A tool for transforming CSS with JavaScript.
-- **Autoprefixer** - A PostCSS plugin to parse CSS and add vendor prefixes.
-- **shadcn/ui** - Beautifully designed components that you can copy and paste into your apps.
+GaiaNet provides decentralized AI inference via public and private hosted nodes. This approach offers several advantages:
+- Distributed computing power
+- Increased reliability and fault tolerance
+- Potential for lower latency depending on node proximity
 
-## ⚙️ Prerequisites
+Our project utilizes GaiaNet's API to access large language models and other AI capabilities in a decentralized manner.
 
-Make sure you have the following installed on your development machine:
+## How It Works
 
-- Node.js (version 16 or above)
-- pnpm (package manager)
+The system operates in three main stages:
 
-## 🚀 Getting Started
+1. **Agent Generation**: The system creates 10 unique AI agents, each initialized with different parameters and specializations.
 
-Follow these steps to get started with the react-vite-ui template:
+2. **Content Creation**: Each agent performs two key tasks:
+   - Audio Generation: Creating unique soundscapes or narratives.
+   - Image Generation: Producing visuals that complement the audio.
 
-1. Clone the repository:
+3. **Video Compilation**: The videoGenerator module combines all the generated content into a cohesive video.
 
-   ```bash
-   git clone https://github.com/dan5py/react-vite-ui.git
-   ```
+When a user submits a prompt:
+1. The prompt is sent to the scriptGenerator, which creates a script using GaiaNet's API.
+2. The script is divided into scenes, each processed by an audio and image generation agent.
+3. The generated audio and images are compiled into a final video.
 
-2. Navigate to the project directory:
+## Project Structure
 
-   ```bash
-   cd react-vite-ui
-   ```
-
-3. Install the dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-4. Start the development server:
-
-   ```bash
-   pnpm dev
-   ```
-
-## 📜 Available Scripts
-
-- pnpm dev - Starts the development server.
-- pnpm build - Builds the production-ready code.
-- pnpm lint - Runs ESLint to analyze and lint the code.
-- pnpm preview - Starts the Vite development server in preview mode.
-
-## 📂 Project Structure
-
-The project structure follows a standard React application layout:
-
-```python
-react-vite-ui/
-  ├── node_modules/      # Project dependencies
-  ├── public/            # Public assets
-  ├── src/               # Application source code
-  │   ├── components/    # React components
-  │   │   └── ui/        # shadc/ui components
-  │   ├── styles/        # CSS stylesheets
-  │   ├── lib/           # Utility functions
-  │   ├── App.tsx        # Application entry point
-  │   └── index.tsx      # Main rendering file
-  ├── .eslintrc.json     # ESLint configuration
-  ├── index.html         # HTML entry point
-  ├── postcss.config.js  # PostCSS configuration
-  ├── tailwind.config.js # Tailwind CSS configuration
-  ├── tsconfig.json      # TypeScript configuration
-  └── vite.config.ts     # Vite configuration
+```
+.
+├── codebase.sh
+├── goals.txt
+├── package.json
+└── src
+    ├── audioGenerator.js
+    ├── imageGenerator.js
+    ├── index.js
+    ├── scriptGenerator.js
+    └── videoGenerator.js
 ```
 
-## 📄 License
+## Key Components
 
-This project is licensed under the MIT License. See the [LICENSE](https://choosealicense.com/licenses/mit/) file for details.
+- `src/index.js`: The main entry point and Express server setup.
+- `src/scriptGenerator.js`: Generates the initial script from the user's prompt.
+- `src/audioGenerator.js`: Handles audio content creation.
+- `src/imageGenerator.js`: Manages image generation.
+- `src/videoGenerator.js`: Coordinates the agents and compiles the final video.
+
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   cd <project-directory>
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Create a `.env` file in the root directory and add your GaiaNet API endpoint:
+   ```
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
+
+## Running the Project
+
+1. Start the server:
+   ```
+   npm start
+   ```
+
+2. The server will start on the port specified in your environment (default is 3000).
+
+## API Endpoints
+
+- `POST /api/generate`: Start video generation with a prompt
+- `GET /api/status/:jobId`: Get the status of a generation job
+- `GET /api/audio/:jobId`: Retrieve the generated audio for a job
+
+## Future Developments
+
+- Increasing the number and specialization of agents
+- Implementing user feedback loops for content refinement
+- Exploring real-time video generation capabilities
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the ISC License.
