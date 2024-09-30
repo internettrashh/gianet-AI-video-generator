@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <style>
+    .node { fill: white; stroke: #333; stroke-width: 2; }
+    .edge { stroke: #666; stroke-width: 2; fill: none; }
+    text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+  </style>
+  
+  <!-- Nodes -->
+  <rect x="50" y="180" width="80" height="40" rx="10" class="node"/>
+  <text x="90" y="205">User</text>
+  
+  <rect x="200" y="180" width="100" height="40" rx="10" class="node"/>
+  <text x="250" y="205">Agent Manager</text>
+  
+  <rect x="400" y="60" width="100" height="40" rx="10" class="node"/>
+  <text x="450" y="85">Audio Generate</text>
+  
+  <rect x="400" y="120" width="100" height="40" rx="10" class="node"/>
+  <text x="450" y="145">Audio Generate</text>
+  
+  <rect x="400" y="180" width="100" height="40" rx="10" class="node"/>
+  <text x="450" y="205">Audio Generate</text>
+  
+  <rect x="400" y="240" width="100" height="40" rx="10" class="node"/>
+  <text x="450" y="265">Audio Generate</text>
+  
+  <rect x="400" y="300" width="100" height="40" rx="10" class="node"/>
+  <text x="450" y="325">Audio Generate</text>
+  
+  <rect x="550" y="60" width="100" height="40" rx="10" class="node"/>
+  <text x="600" y="85">Image Generator</text>
+  
+  <rect x="550" y="120" width="100" height="40" rx="10" class="node"/>
+  <text x="600" y="145">Image Generator</text>
+  
+  <rect x="550" y="180" width="100" height="40" rx="10" class="node"/>
+  <text x="600" y="205">Image Generator</text>
+  
+  <rect x="550" y="240" width="100" height="40" rx="10" class="node"/>
+  <text x="600" y="265">Image Generator</text>
+  
+  <rect x="550" y="300" width="100" height="40" rx="10" class="node"/>
+  <text x="600" y="325">Image Generator</text>
+  
+  <rect x="700" y="180" width="80" height="40" rx="10" class="node"/>
+  <text x="740" y="205">Output Video</text>
+  
+  <!-- Edges -->
+  <path d="M130 200 H190" class="edge" />
+  <path d="M300 200 H390" class="edge" />
+  <path d="M300 200 Q350 80 390 80" class="edge" />
+  <path d="M300 200 Q350 140 390 140" class="edge" />
+  <path d="M300 200 Q350 260 390 260" class="edge" />
+  <path d="M300 200 Q350 320 390 320" class="edge" />
+  
+  <path d="M500 80 H540" class="edge" />
+  <path d="M500 140 H540" class="edge" />
+  <path d="M500 200 H540" class="edge" />
+  <path d="M500 260 H540" class="edge" />
+  <path d="M500 320 H540" class="edge" />
+  
+  <path d="M650 80 Q675 200 690 200" class="edge" />
+  <path d="M650 140 Q670 200 690 200" class="edge" />
+  <path d="M650 200 H690" class="edge" />
+  <path d="M650 260 Q670 200 690 200" class="edge" />
+  <path d="M650 320 Q675 200 690 200" class="edge" />
+  
+<!-- Modified path from Output Video to User -->
+<path d="M780 200 C820 300, 700 420, 400 420 S100 380, 80 220" class="edge" />
