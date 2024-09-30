@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
+
 export default function Component() {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
