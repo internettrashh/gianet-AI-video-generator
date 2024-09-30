@@ -56,7 +56,7 @@ export default function Component() {
 
   const fetchStatus = async () => {
     try {
-      const response = await fetch('https://gianet-ai-video-generator.onrender.com/status')
+      const response = await fetch('https://vmi1968527.contaboserver.net/gaianet/status')
       const data = await response.json()
       setAgentStatus(data.agentStatus)
       updateProcessLogs(data.agentStatus, data.compilerStatus)
@@ -98,7 +98,7 @@ export default function Component() {
     setProcessLogs([])
   
     try {
-      const generateResponse = await fetch('https://gianet-ai-video-generator.onrender.com/generate', {
+      const generateResponse = await fetch('https://vmi1968527.contaboserver.net/gaianet/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ export default function Component() {
 
   const handleDownload = async () => {
     try {
-      const response = await fetch('https://gianet-ai-video-generator.onrender.com/video')
+      const response = await fetch('https://vmi1968527.contaboserver.net/gaianet/video')
       if (!response.ok) throw new Error('Failed to download video')
       
       const blob = await response.blob()
