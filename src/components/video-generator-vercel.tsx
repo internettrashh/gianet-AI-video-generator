@@ -158,9 +158,9 @@ export default function Component() {
           <AlertTitle>Important Information</AlertTitle>
           <AlertDescription>
             <p>video generation takes time and you may be placed in a queue.</p>
-            <p>Video generation can take up to 5-10 minutes.</p>
+            <p>Video generation can take about 2 minutes.</p>
             <p className="font-bold">Please do not refresh or leave the page during the process.</p>
-            <p>If the generate button doesn't respond, you may be in a queue. Please wait and try again later.</p>
+            <p>If the generate button doesn't respond, you may be in a queue. Please wait for 1-2 minutes and try again later.</p>
           </AlertDescription>
         </Alert>
 
