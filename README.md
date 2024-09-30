@@ -13,9 +13,10 @@ GaiaNet provides decentralized AI inference via public and private hosted nodes.
 
 Our project utilizes GaiaNet's API to access large language models and other AI capabilities in a decentralized manner.
 
+
 ## System Architecture
 
-![Alt text](./flow.svg)
+![Flow Diagram](flow.png)
 
 The system consists of 12 specialized agents:
 
