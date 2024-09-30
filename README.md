@@ -15,6 +15,8 @@ Our project utilizes GaiaNet's API to access large language models and other AI 
 
 ## System Architecture
 
+![Alt text](./flow.svg)
+
 The system consists of 12 specialized agents:
 
 1. **Script Generator Agent (1)**: Generates the initial script from the user's prompt using GaiaNet's API.
